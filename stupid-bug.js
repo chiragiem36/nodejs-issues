@@ -4,16 +4,20 @@ let nm
 			form.encoding = "utf-8"
 			form.keepExtensions = true
 			form.uploadDir = root + "/data/scores"
+
 			form.parse(req,(err,fields,value)=>{
 				if(err) throw err
 				cls.inp = fields;
 			})
+
 			form.on('file',(name,file)=>{
 				nm = path.basename(file.path)
 			})
+
 			form.on('error',(err)=>{console.log(err)})
+
 			form.on('end',()=>{
-				ep(root + "/data/scores/" + nm,function(err,data){
+				ep(root + "/data/scores/" + nm,function(err,data){ //read and parse excel into arrayy where each new row is element of an array, which itself is an array with columns at element => [[a2,b2],[a1,b1]]
 					if(err) console.error(err);
 					const flds = data.shift()
 					class Std {
@@ -30,7 +34,7 @@ let nm
 					delete cls.inp.testDate
 					mongo.connect('mongodb://localhost:27018/data',(err,db)=>{
 						if(err) console.log(err)
-						data.forEach((a)=>{
+						data.forEach((a)=>{ // loop through all rows/elemets of array, of excel to create objects whose keys are element of first row and value is element of the embedded array
 							const o = new Std(flds,a)
 							cls.dt[o.enroll_number] = o;
 							o.type = "upload"
